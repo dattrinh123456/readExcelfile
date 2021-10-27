@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.3/xlsx.min.js"
+      integrity="sha512-JiRzqZPYxjedpFqoYdKBcsKiBUfsmRZTyjuGlumbyJt4WJfWBZNqIizmbNgPN19VFtg3NYywvNk9lkt4KXVhiA=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+    <title>Document</title>
+  </head>
+  <body>
+    <div>
+      <input type="file" id="file" />
+      <button id="button">Click</button>
+      <br />
+      <select id="select"></select>
+      <input type="text" id="search" />
+      <button id="btn_search">search</button>
+      <div id="show_info"></div>
+    </div>
+  </body>
+  <script>
+    var excelData = [];
+    const button = document.getElementById("button");
+    const select = document.getElementById("select");
+    const btnSearch = document.getElementById("btn_search");
+    const showData = document.getElementById("show_info");
+
+    button.addEventListener("click", function (data) {
+      excelData = [];
+      const file = document.getElementById("file").files[0];
+      var reader = new FileReader();
+      var result = {};
+      reader.onload = function (e) {
+        var data = e.target.result;
+        var workbook = XLSX.read(data, {
+          type: "binary",
+        });
+        workbook.SheetNames.forEach(function (sheetName) {
+          // Here is your object
+          var XL_row_object = XLSX.utils.sheet_to_row_object_array(
+            workbook.Sheets[sheetName]
+          );
+          // var json_object = JSON.stringify(XL_row_object);
+          excelData.push(...XL_row_object);
+          console.log(excelData);
+          select.innerHTML = "";
+          for (const key in excelData[0]) {
+            select.innerHTML += `<option id="${key}" >${key}</option>`;
+          }
+        });
+      };
+      reader.readAsBinaryString(file);
+    });
+
+    btnSearch.addEventListener("click", function (data) {
+      const searchInput = document.getElementById("search").value;
+      const selectOptions = select.options[select.selectedIndex].value;
+      const res = excelData.filter((x) =>
+        x[selectOptions].toString().includes(searchInput)
+      );
+      showData.innerHTML = "";
+      res.forEach((data) => {
+        showData.innerHTML += JSON.stringify(data) + "<br>";
+      });
+    });
+  </script>
+</html>
